@@ -1,37 +1,52 @@
 package com.example.bank.model;
 
-import com.example.bank.storage.DBConnection;
-import java.sql.Connection;
-import java.sql.Statement;
+import java.math.BigDecimal;
 
 public class Account {
-    public static void createTable() {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS accounts (
-                account_id INT AUTO_INCREMENT PRIMARY KEY,
-                customer_id INT,
-                account_type VARCHAR(50),
-                bank_name VARCHAR(100),
-                branch VARCHAR(100),
-                balance DECIMAL(15,2),
-                status VARCHAR(20),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                account_number VARCHAR(20) UNIQUE,
-                ifsc_code VARCHAR(20),
-                name_on_account VARCHAR(100),
-                phone_linked VARCHAR(15),
-                saving_amount DECIMAL(15,2),
-                FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
-            );
-        """;
+    private int customerId;
+    private String accountType;
+    private String bankName;
+    private String branch;
+    private BigDecimal balance;
+    private String status;
+    private String accountNumber;
+    private String ifscCode;
+    private String nameOnAccount;
+    private String phoneLinked;
+    private BigDecimal savingAmount;
 
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("Accounts table created successfully.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public Account() {}
+
+    public int getCustomerId() { return customerId; }
+    public void setCustomerId(int customerId) { this.customerId = customerId; }
+
+    public String getAccountType() { return accountType; }
+    public void setAccountType(String accountType) { this.accountType = accountType; }
+
+    public String getBankName() { return bankName; }
+    public void setBankName(String bankName) { this.bankName = bankName; }
+
+    public String getBranch() { return branch; }
+    public void setBranch(String branch) { this.branch = branch; }
+
+    public BigDecimal getBalance() { return balance; }
+    public void setBalance(BigDecimal balance) { this.balance = balance; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getAccountNumber() { return accountNumber; }
+    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
+
+    public String getIfscCode() { return ifscCode; }
+    public void setIfscCode(String ifscCode) { this.ifscCode = ifscCode; }
+
+    public String getNameOnAccount() { return nameOnAccount; }
+    public void setNameOnAccount(String nameOnAccount) { this.nameOnAccount = nameOnAccount; }
+
+    public String getPhoneLinked() { return phoneLinked; }
+    public void setPhoneLinked(String phoneLinked) { this.phoneLinked = phoneLinked; }
+
+    public BigDecimal getSavingAmount() { return savingAmount; }
+    public void setSavingAmount(BigDecimal savingAmount) { this.savingAmount = savingAmount; }
 }

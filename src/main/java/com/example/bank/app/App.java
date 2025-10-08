@@ -1,14 +1,23 @@
 package com.example.bank.app;
 
-import com.example.bank.model.Customer;
-import com.example.bank.model.Account;
-import com.example.bank.model.Transaction;
+import com.example.bank.controller.AccountController;
+import com.example.bank.controller.CustomerController;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 
-public class App {
-    public static void main(String[] args) {
-        Customer.createTable();
-        Account.createTable();
-        Transaction.createTable();
+import jakarta.ws.rs.ApplicationPath;
+
+@ApplicationPath("/api")
+public class App extends ResourceConfig {
+    
+    public App() {
+        register(AccountController.class);
+        register(CustomerController.class);
+        
+        packages("com.example.bank.controller");
+        
+        property(ServerProperties.TRACING, "ALL");
+        
+        System.out.println("Application is running...");
     }
 }
-

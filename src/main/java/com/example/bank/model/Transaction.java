@@ -1,35 +1,100 @@
 package com.example.bank.model;
 
-import com.example.bank.storage.DBConnection;
-import java.sql.Connection;
-import java.sql.Statement;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 public class Transaction {
-    public static void createTable() {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS transactions (
-                transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-                utr_number VARCHAR(50) UNIQUE,
-                transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                transaction_amount DECIMAL(15,2),
-                debited_date TIMESTAMP NULL,
-                account_id INT,
-                balance_amount DECIMAL(15,2),
-                description TEXT,
-                modified_by VARCHAR(100),
-                receiver VARCHAR(100),
-                transaction_type VARCHAR(20), -- deposit, withdrawal
-                mode_of_transaction VARCHAR(20), -- credit, debit, upi, qr
-                FOREIGN KEY (account_id) REFERENCES accounts(account_id)
-            );
-        """;
+    private int transactionId;
+    private String utrNumber;
+    private Timestamp transactionDate;
+    private BigDecimal transactionAmount;
+    private Timestamp debitedDate;
+    private int accountId;
+    private BigDecimal balanceAmount;
+    private String description;
+    private String modifiedBy;
+    private String receiver;
+    private String transactionType;
+    private String modeOfTransaction;
+    private String senderAccountNumber;
+    private String receiverAccountNumber; 
+    private String accountNumber;
 
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("Transactions table created successfully.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+   
+    public Transaction() {}
+
+    public Transaction(String utrNumber, BigDecimal transactionAmount, int accountId, 
+                     BigDecimal balanceAmount, String description, String transactionType, 
+                     String modeOfTransaction, String receiver) {
+        this.utrNumber = utrNumber;
+        this.transactionAmount = transactionAmount;
+        this.accountId = accountId;
+        this.balanceAmount = balanceAmount;
+        this.description = description;
+        this.transactionType = transactionType;
+        this.modeOfTransaction = modeOfTransaction;
+        this.receiver = receiver;
     }
+
+   
+    public int getTransactionId() { return transactionId; }
+    public void setTransactionId(int transactionId) { this.transactionId = transactionId; }
+
+    public String getUtrNumber() { return utrNumber; }
+    public void setUtrNumber(String utrNumber) { this.utrNumber = utrNumber; }
+
+    public Timestamp getTransactionDate() { return transactionDate; }
+    public void setTransactionDate(Timestamp transactionDate) { this.transactionDate = transactionDate; }
+
+    public BigDecimal getTransactionAmount() { return transactionAmount; }
+    public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
+
+    public Timestamp getDebitedDate() { return debitedDate; }
+    public void setDebitedDate(Timestamp debitedDate) { this.debitedDate = debitedDate; }
+
+    public int getAccountId() { return accountId; }
+    public void setAccountId(int accountId) { this.accountId = accountId; }
+
+    public BigDecimal getBalanceAmount() { return balanceAmount; }
+    public void setBalanceAmount(BigDecimal balanceAmount) { this.balanceAmount = balanceAmount; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getModifiedBy() { return modifiedBy; }
+    public void setModifiedBy(String modifiedBy) { this.modifiedBy = modifiedBy; }
+
+    public String getReceiver() { return receiver; }
+    public void setReceiver(String receiver) { this.receiver = receiver; }
+
+    public String getTransactionType() { return transactionType; }
+    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
+
+    public String getModeOfTransaction() { return modeOfTransaction; }
+    public void setModeOfTransaction(String modeOfTransaction) { this.modeOfTransaction = modeOfTransaction; }
+
+    public String getSenderAccountNumber() {
+    return senderAccountNumber;
+    }
+
+    public void setSenderAccountNumber(String senderAccountNumber) {
+        this.senderAccountNumber = senderAccountNumber;
+    }
+
+    public String getReceiverAccountNumber() {
+        return receiverAccountNumber;
+    }
+
+    public void setReceiverAccountNumber(String receiverAccountNumber) {
+        this.receiverAccountNumber = receiverAccountNumber;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
 }
