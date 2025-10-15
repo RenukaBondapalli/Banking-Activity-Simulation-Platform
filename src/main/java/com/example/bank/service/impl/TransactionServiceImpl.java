@@ -72,7 +72,15 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public boolean withdraw(Transaction transaction) throws SQLException, ValidationException {
+
+
         try {
+            
+            String storedPin = customerDAO.getPinByAccountNumber(transaction.getAccountNumber());
+            if (storedPin == null || !storedPin.equals(transaction.getPin())) {
+                throw new ValidationException("Invalid PIN. Transaction failed.");
+            }
+
             int accountId = accountDAO.getAccountIdByNumber(transaction.getAccountNumber());
             if (accountId <= 0) {
                 throw new ValidationException("Invalid account number");
@@ -138,6 +146,11 @@ public class TransactionServiceImpl implements TransactionService {
             conn.setAutoCommit(false);
 
             validateTransaction(transaction);
+
+            String storedPin = customerDAO.getPinByAccountNumber(transaction.getSenderAccountNumber());
+            if (storedPin == null || !storedPin.equals(transaction.getPin())) {
+                throw new ValidationException("Invalid PIN. Transaction failed.");
+            }
 
             int senderAccountId = accountDAO.getAccountIdByNumber(transaction.getSenderAccountNumber());
             int receiverAccountId = accountDAO.getAccountIdByNumber(transaction.getReceiverAccountNumber());
