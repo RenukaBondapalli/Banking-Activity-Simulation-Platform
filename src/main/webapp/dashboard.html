@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Banking Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-card">
+        <h1>Welcome to Your Banking Dashboard</h1>
+        <p id="welcomeMsg"></p>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <h2>Profile</h2>
+            <button id="viewProfileBtn">Customers</button>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <button id="accountsBtn">Accounts</button>
+            <button id="transactionsBtn">Transactions</button>
+        </div>
+
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        const customerId = sessionStorage.getItem("customerId");
+        const welcomeMsg = document.getElementById("welcomeMsg");
+        if (!customerId) {
+            alert("Please login first!");
+            window.location.href = "index.html";
+        }
+
+        // Button redirects
+        document.getElementById("accountsBtn").addEventListener("click", () => {
+            window.location.href = "accounts.html";
+        });
+
+        document.getElementById("transactionsBtn").addEventListener("click", () => {
+            window.location.href = "transactions.html";
+        });
+
+        document.getElementById("viewProfileBtn").addEventListener("click", () => {
+            window.location.href = "customers.html"; // page to view/edit profile
+        });
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            sessionStorage.clear();
+            window.location.href = "index.html";
+        });
+    </script>
+</body>
+</html>

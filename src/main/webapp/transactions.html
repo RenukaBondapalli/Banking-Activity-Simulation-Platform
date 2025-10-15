@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Banking System</title>
+    <link rel="stylesheet" href="css/transactions.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="banking-container">
+        <header class="banking-header">
+            <div class="header-content">
+                <h1><i class="fas fa-exchange-alt"></i> Transactions Dashboard</h1>
+                <p>Transfer, withdraw and track your transactions</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="action-panel">
+                <div class="action-buttons">
+                    <button id="transferBtn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Transfer Money
+                    </button>
+                    <button id="withdrawBtn" class="btn btn-secondary">
+                        <i class="fas fa-money-bill-wave"></i> Withdraw Money
+                    </button>
+                    <button id="historyBtn" class="btn btn-info">
+                        <i class="fas fa-history"></i> Transaction History
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div id="formContainer" class="form-container"></div>
+                <div id="message" class="message"></div>
+            </div>
+
+            <div class="navigation">
+                <a href="dashboard.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const formContainer = document.getElementById("formContainer");
+        const messageElement = document.getElementById("message");
+
+        function clearMessage() { 
+            messageElement.textContent = ""; 
+            messageElement.className = "message"; 
+        }
+        
+        function clearForm() { 
+            formContainer.innerHTML = ""; 
+        }
+
+        // ---------- Transfer Money ----------
+        document.getElementById("transferBtn").addEventListener("click", () => {
+            clearForm(); 
+            clearMessage();
+
+            formContainer.innerHTML = `
+                <div class="form-card">
+                    <h2><i class="fas fa-paper-plane"></i> Transfer Money</h2>
+                    <form id="transactionForm" class="banking-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="senderAccount">Sender Account Number</label>
+                                <input type="text" id="senderAccount" placeholder="Enter sender account number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="receiverAccount">Receiver Account Number</label>
+                                <input type="text" id="receiverAccount" placeholder="Enter receiver account number" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="transactionAmount">Amount</label>
+                                <input type="number" id="transactionAmount" placeholder="0.00" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="modeOfTransaction">Mode of Transaction</label>
+                                <select id="modeOfTransaction" required>
+                                    <option value="">Select Mode</option>
+                                    <option value="ONLINE">ONLINE</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="CASH">CASH</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pin">PIN</label>
+                            <input type="password" id="pin" placeholder="Enter your PIN" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-paper-plane"></i> Send Money
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById("transactionForm").addEventListener("submit", async e => {
+                e.preventDefault();
+                const data = {
+                    senderAccountNumber: document.getElementById("senderAccount").value,
+                    receiverAccountNumber: document.getElementById("receiverAccount").value,
+                    transactionAmount: parseFloat(document.getElementById("transactionAmount").value),
+                    modeOfTransaction: document.getElementById("modeOfTransaction").value,
+                    pin: document.getElementById("pin").value
+                };
+
+                try {
+                    const response = await fetch("http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/transactions/transfer", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        messageElement.className = "message success";
+                        messageElement.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message}`;
+                    } else {
+                        messageElement.className = "message error";
+                        messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message}`;
+                    }
+                } catch (err) {
+                    messageElement.className = "message error";
+                    messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+                }
+            });
+        });
+
+        // ---------- Withdraw Money ----------
+        document.getElementById("withdrawBtn").addEventListener("click", () => {
+            clearForm(); 
+            clearMessage();
+
+            formContainer.innerHTML = `
+                <div class="form-card">
+                    <h2><i class="fas fa-money-bill-wave"></i> Withdraw Money</h2>
+                    <form id="withdrawForm" class="banking-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="withdrawAccount">Account Number</label>
+                                <input type="text" id="withdrawAccount" placeholder="Enter account number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="withdrawAmount">Amount</label>
+                                <input type="number" id="withdrawAmount" placeholder="0.00" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="withdrawDescription">Description</label>
+                                <input type="text" id="withdrawDescription" placeholder="Enter description" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="withdrawMode">Mode of Transaction</label>
+                                <select id="withdrawMode" required>
+                                    <option value="">Select Mode</option>
+                                    <option value="CASH">CASH</option>
+                                    <option value="ONLINE">ONLINE</option>
+                                    <option value="UPI">UPI</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="withdrawPin">PIN</label>
+                            <input type="password" id="withdrawPin" placeholder="Enter your PIN" required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-full">
+                            <i class="fas fa-money-bill-wave"></i> Withdraw Money
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById("withdrawForm").addEventListener("submit", async e => {
+                e.preventDefault();
+                const data = {
+                    accountNumber: document.getElementById("withdrawAccount").value,
+                    transactionAmount: parseFloat(document.getElementById("withdrawAmount").value),
+                    description: document.getElementById("withdrawDescription").value,
+                    modeOfTransaction: document.getElementById("withdrawMode").value,
+                    pin: document.getElementById("withdrawPin").value
+                };
+
+                try {
+                    const response = await fetch("http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/transactions/withdraw", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        messageElement.className = "message success";
+                        messageElement.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message}`;
+                    } else {
+                        messageElement.className = "message error";
+                        messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message}`;
+                    }
+                } catch (err) {
+                    messageElement.className = "message error";
+                    messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+                }
+            });
+        });
+
+        // ---------- Transaction History ----------
+        document.getElementById("historyBtn").addEventListener("click", () => {
+            clearForm(); 
+            clearMessage();
+
+            formContainer.innerHTML = `
+                <div class="form-card">
+                    <h2><i class="fas fa-history"></i> Transaction History</h2>
+                    <form id="historyForm" class="banking-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="historyAccountNumber">Account Number</label>
+                                <input type="text" id="historyAccountNumber" placeholder="Enter account number" required>
+                            </div>
+                            <div class="form-group button-group">
+                                <button type="submit" class="btn btn-info">
+                                    <i class="fas fa-eye"></i> View History
+                                </button>
+                                <button type="button" id="exportBtn" class="btn btn-success">
+                                    <i class="fas fa-file-excel"></i> Export to Excel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="historyContainer" class="history-container"></div>
+                </div>
+            `;
+
+            document.getElementById("historyForm").addEventListener("submit", async e => {
+                e.preventDefault();
+                const historyContainer = document.getElementById("historyContainer");
+                historyContainer.innerHTML = "";
+
+                const accountNumber = document.getElementById("historyAccountNumber").value;
+                if (!accountNumber) {
+                    historyContainer.innerHTML = '<div class="message error"><i class="fas fa-exclamation-circle"></i> Please enter an account number</div>';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/transactions/account/${accountNumber}`);
+                    if (!response.ok) throw new Error("Account not found");
+
+                    const transactions = await response.json();
+                    if (transactions.length === 0) {
+                        historyContainer.innerHTML = '<div class="no-transactions"><i class="fas fa-inbox"></i> No transactions found for this account.</div>';
+                        return;
+                    }
+
+                    transactions.forEach(txn => {
+                        const dateObj = new Date(txn.transactionDate.replace(/\[UTC\]/, ""));
+                        const formattedDate = dateObj.toLocaleString();
+                        const receiver = txn.receiver || "-";
+
+                        const txnDiv = document.createElement("div");
+                        txnDiv.classList.add("transaction-details-simple");
+                        txnDiv.innerHTML = `
+                            <h4>Transaction Details</h4>
+                            <div class="details-simple">
+                                <div class="detail-line">
+                                    <span class="detail-label-simple">Sender Account</span>
+                                    <span class="detail-value-simple">: ${txn.senderAccountNumber}</span>
+                                </div>
+                                <div class="detail-line">
+                                    <span class="detail-label-simple">Receiver Account</span>
+                                    <span class="detail-value-simple">: ${receiver}</span>
+                                </div>
+                                <div class="detail-line">
+                                    <span class="detail-label-simple">Amount</span>
+                                    <span class="detail-value-simple amount">: ₹${txn.transactionAmount}</span>
+                                </div>
+                                <div class="detail-line">
+                                    <span class="detail-label-simple">Mode</span>
+                                    <span class="detail-value-simple">: ${txn.modeOfTransaction}</span>
+                                </div>
+                                <div class="detail-line">
+                                    <span class="detail-label-simple">Date & Time</span>
+                                    <span class="detail-value-simple">: ${formattedDate}</span>
+                                </div>
+                            </div>
+                        `;
+                        historyContainer.appendChild(txnDiv);
+                    });
+
+                } catch (err) {
+                    historyContainer.innerHTML = '<div class="message error"><i class="fas fa-exclamation-circle"></i> Account number not found or network error.</div>';
+                }
+            });
+
+            // Export to Excel Button
+            document.getElementById("exportBtn").addEventListener("click", () => {
+                const accountNumber = document.getElementById("historyAccountNumber").value;
+                if (!accountNumber) {
+                    const historyContainer = document.getElementById("historyContainer");
+                    historyContainer.innerHTML = '<div class="message error"><i class="fas fa-exclamation-circle"></i> Please enter an account number to export</div>';
+                    return;
+                }
+                window.location.href = `http://localhost:8080/bank-simulator-1.0-SNAPSHOT/export/account/${accountNumber}`;
+            });
+        });
+    </script>
+</body>
+</html>

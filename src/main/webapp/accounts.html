@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts - Banking System</title>
+    <link rel="stylesheet" href="css/accounts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="banking-container">
+        <header class="banking-header">
+            <div class="header-content">
+                <h1><i class="fas fa-landmark"></i> Accounts Dashboard</h1>
+                <p>Manage your banking accounts securely</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="action-panel">
+                <div class="action-buttons">
+                    <button id="createBtn" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Create Account
+                    </button>
+                    <button id="updateBtn" class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Update Account
+                    </button>
+                    <button id="getBtn" class="btn btn-info">
+                        <i class="fas fa-search"></i> Get Account
+                    </button>
+                    <button id="deleteBtn" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete Account
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div id="formContainer" class="form-container"></div>
+                <div id="message" class="message"></div>
+            </div>
+
+            <div class="navigation">
+                <a href="dashboard.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        const formContainer = document.getElementById("formContainer");
+        const messageElement = document.getElementById("message");
+        const customerId = sessionStorage.getItem("customerId");
+
+        function clearMessage() { messageElement.textContent = ""; messageElement.className = "message"; }
+        function clearForm() { formContainer.innerHTML = ""; }
+
+        // ---------- Create Account ----------
+        document.getElementById("createBtn").addEventListener("click", () => {
+            clearForm(); clearMessage();
+
+            formContainer.innerHTML = `
+                <div class="form-card">
+                    <h2><i class="fas fa-plus-circle"></i> Create Account</h2>
+                    <form id="createForm" class="banking-form">
+                        <div class="form-group">
+                            <label for="accountType">Account Type</label>
+                            <input type="text" id="accountType" placeholder="e.g., Savings, Checking" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bankName">Bank Name</label>
+                            <input type="text" id="bankName" placeholder="Enter bank name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="branch">Branch</label>
+                            <input type="text" id="branch" placeholder="Branch location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="balance">Initial Balance</label>
+                            <input type="number" id="balance" placeholder="0.00" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <input type="text" id="status" placeholder="Active" value="Active" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nameOnAccount">Name on Account</label>
+                            <input type="text" id="nameOnAccount" placeholder="Account holder name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneLinked">Phone Linked</label>
+                            <input type="text" id="phoneLinked" placeholder="Linked phone number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="savingAmount">Saving Amount</label>
+                            <input type="number" id="savingAmount" placeholder="0.00" min="0" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-check"></i> Create Account
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById("createForm").addEventListener("submit", async e => {
+                e.preventDefault();
+
+                const balance = parseFloat(document.getElementById("balance").value.trim());
+                const savingAmount = parseFloat(document.getElementById("savingAmount").value.trim());
+
+                if (isNaN(balance) || balance < 0) {
+                    messageElement.className = "message error";
+                    messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Balance must be a positive number';
+                    return;
+                }
+
+                if (isNaN(savingAmount) || savingAmount < 0) {
+                    messageElement.className = "message error";
+                    messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Saving amount must be a positive number';
+                    return;
+                }
+
+                const data = {
+                    customerId: parseInt(customerId),
+                    accountType: document.getElementById("accountType").value,
+                    bankName: document.getElementById("bankName").value,
+                    branch: document.getElementById("branch").value,
+                    balance: balance,
+                    status: document.getElementById("status").value,
+                    nameOnAccount: document.getElementById("nameOnAccount").value,
+                    phoneLinked: document.getElementById("phoneLinked").value,
+                    savingAmount: savingAmount
+                };
+
+                try {
+                    const response = await fetch(`http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/accounts/create`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        messageElement.className = "message success";
+                        messageElement.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message}<br><small>Account Number: ${result.accountNumber}, IFSC: ${result.ifscCode}</small>`;
+                    } else {
+                        messageElement.className = "message error";
+                        messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message}`;
+                    }
+
+                } catch (err) {
+                    messageElement.className = "message error";
+                    messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+                }
+            });
+        });
+
+        // ---------- Update Account ----------
+        document.getElementById("updateBtn").addEventListener("click", () => {
+            clearForm(); clearMessage();
+
+            formContainer.innerHTML = `
+                <div class="form-card">
+                    <h2><i class="fas fa-edit"></i> Update Account</h2>
+                    <form id="fetchUpdateForm" class="banking-form">
+                        <div class="form-group">
+                            <label for="updateAccountNumber">Account Number</label>
+                            <input type="text" id="updateAccountNumber" placeholder="Enter account number" required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-full">
+                            <i class="fas fa-search"></i> Fetch Account
+                        </button>
+                    </form>
+                    <div id="updateFormContainer"></div>
+                </div>
+            `;
+
+            document.getElementById("fetchUpdateForm").addEventListener("submit", async e => {
+                e.preventDefault();
+                const accNumber = document.getElementById("updateAccountNumber").value.trim();
+                try {
+                    const response = await fetch(`http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/accounts/get/${accNumber}`);
+
+                    const container = document.getElementById("updateFormContainer");
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        container.innerHTML = `
+                            <div class="form-card">
+                                <h3><i class="fas fa-user-edit"></i> Edit Account Details</h3>
+                                <form id="updateForm" class="banking-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="accountNumber">Account Number</label>
+                                            <input type="text" id="accountNumber" value="${data.accountNumber}" readonly class="readonly">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ifscCode">IFSC Code</label>
+                                            <input type="text" id="ifscCode" value="${data.ifscCode}" readonly class="readonly">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="accountType">Account Type</label>
+                                        <input type="text" id="accountType" value="${data.accountType}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bankName">Bank Name</label>
+                                        <input type="text" id="bankName" value="${data.bankName}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="branch">Branch</label>
+                                        <input type="text" id="branch" value="${data.branch}" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="balance">Balance</label>
+                                            <input type="number" id="balance" value="${data.balance}" readonly class="readonly">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="savingAmount">Saving Amount</label>
+                                            <input type="number" id="savingAmount" value="${data.savingAmount}" readonly class="readonly">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <input type="text" id="status" value="${data.status}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="nameOnAccount">Name on Account</label>
+                                        <input type="text" id="nameOnAccount" value="${data.nameOnAccount}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phoneLinked">Phone Linked</label>
+                                        <input type="text" id="phoneLinked" value="${data.phoneLinked}" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary btn-full">
+                                        <i class="fas fa-save"></i> Update Account
+                                    </button>
+                                </form>
+                            </div>
+                        `;
+
+                        document.getElementById("updateForm").addEventListener("submit", async e => {
+                            e.preventDefault();
+                            const updateData = {
+                                customerId: parseInt(customerId),
+                                accountNumber: document.getElementById("accountNumber").value,
+                                ifscCode: document.getElementById("ifscCode").value,
+                                accountType: document.getElementById("accountType").value,
+                                bankName: document.getElementById("bankName").value,
+                                branch: document.getElementById("branch").value,
+                                balance: parseFloat(document.getElementById("balance").value),
+                                status: document.getElementById("status").value,
+                                nameOnAccount: document.getElementById("nameOnAccount").value,
+                                phoneLinked: document.getElementById("phoneLinked").value,
+                                savingAmount: parseFloat(document.getElementById("savingAmount").value)
+                            };
+
+                            try {
+                                const res = await fetch(`http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/accounts/update/${updateData.accountNumber}`, {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(updateData)
+                                });
+
+                                const text = await res.text();
+                                if (res.ok) {
+                                    messageElement.className = "message success";
+                                    messageElement.innerHTML = `<i class="fas fa-check-circle"></i> Account updated successfully: ${text}`;
+                                } else {
+                                    messageElement.className = "message error";
+                                    messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${text}`;
+                                }
+
+                            } catch (err) {
+                                messageElement.className = "message error";
+                                messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+                            }
+                        });
+
+                    } else {
+                        const errorText = await response.text();
+                        container.innerHTML = "";
+                        messageElement.className = "message error";
+                        messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${errorText || "Account not found"}`;
+                    }
+
+                } catch (err) {
+                    messageElement.className = "message error";
+                    messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+                }
+            });
+        });
+
+       // ---------- Get Account ----------
+document.getElementById("getBtn").addEventListener("click", () => {
+    clearForm(); clearMessage();
+
+    formContainer.innerHTML = `
+        <div class="form-card">
+            <h2><i class="fas fa-search"></i> Get Account</h2>
+            <form id="getForm" class="banking-form">
+                <div class="form-group">
+                    <label for="getAccountNumber">Account Number</label>
+                    <input type="text" id="getAccountNumber" placeholder="Enter account number" required>
+                </div>
+                <button type="submit" class="btn btn-info btn-full">
+                    <i class="fas fa-search"></i> Get Account Details
+                </button>
+            </form>
+            <div id="accountDetails"></div>
+        </div>
+    `;
+
+    document.getElementById("getForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const accountNumber = document.getElementById("getAccountNumber").value;
+
+        try {
+            const response = await fetch(`http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/accounts/get/${accountNumber}`);
+            const detailsDiv = document.getElementById("accountDetails");
+
+            if (response.ok) {
+                const data = await response.json();
+
+                detailsDiv.innerHTML = `
+                    <div class="account-details-simple">
+                        <h3 style="text-align: center; color: var(--primary); margin-bottom: 25px; font-family: 'Poppins', sans-serif;">Account Details</h3>
+                        <div class="details-simple">
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Account Number</span>
+                                <span class="detail-value-simple">: ${data.accountNumber}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">IFSC Code</span>
+                                <span class="detail-value-simple">: ${data.ifscCode}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Account Type</span>
+                                <span class="detail-value-simple">: ${data.accountType}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Bank Name</span>
+                                <span class="detail-value-simple">: ${data.bankName}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Branch</span>
+                                <span class="detail-value-simple">: ${data.branch}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Balance</span>
+                                <span class="detail-value-simple amount">: ₹${data.balance}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Status</span>
+                                <span class="detail-value-simple status ${data.status.toLowerCase()}">: ${data.status}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Name on Account</span>
+                                <span class="detail-value-simple">: ${data.nameOnAccount}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Phone Linked</span>
+                                <span class="detail-value-simple">: ${data.phoneLinked}</span>
+                            </div>
+                            <div class="detail-line">
+                                <span class="detail-label-simple">Saving Amount</span>
+                                <span class="detail-value-simple amount">: ₹${data.savingAmount}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                messageElement.textContent = "";
+
+            } else {
+                const errorText = await response.text();
+                detailsDiv.innerHTML = "";
+                messageElement.className = "message error";
+                messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${errorText || "Account not found"}`;
+            }
+
+        } catch (err) {
+            messageElement.className = "message error";
+            messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+        }
+    });
+});
+
+
+
+// ---------- Delete Account ----------
+document.getElementById("deleteBtn").addEventListener("click", () => {
+    clearForm(); clearMessage();
+
+    formContainer.innerHTML = `
+        <div class="form-card">
+            <h2><i class="fas fa-trash-alt"></i> Delete Account</h2>
+            <form id="deleteForm" class="banking-form">
+                <div class="form-group">
+                    <label for="deleteAccountNumber">Account Number</label>
+                    <input type="text" id="deleteAccountNumber" placeholder="Enter account number" required>
+                </div>
+                <button type="submit" class="btn btn-danger btn-full">
+                    <i class="fas fa-trash-alt"></i> Delete Account
+                </button>
+            </form>
+        </div>
+    `;
+
+    document.getElementById("deleteForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const accountNumber = document.getElementById("deleteAccountNumber").value;
+
+        if (!confirm(`Are you sure you want to delete account ${accountNumber}? This action cannot be undone.`)) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/bank-simulator-1.0-SNAPSHOT/api/accounts/delete/${accountNumber}`, {
+                method: "DELETE"
+            });
+
+            const text = await response.text();
+
+            if (response.ok) {
+                messageElement.className = "message success";
+                messageElement.innerHTML = `<i class="fas fa-check-circle"></i> Account deleted successfully: ${text}`;
+            } else {
+                messageElement.className = "message error";
+                messageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${text}`;
+            }
+
+        } catch (err) {
+            messageElement.className = "message error";
+            messageElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Network error or server not reachable.';
+        }
+    });
+});
+
+    </script>
+</body>
+</html>
