@@ -17,6 +17,7 @@ public class Customer {
     private String email;
     private String phoneNumber;
     private String status;
+    private String pin;
     
     @JsonbDateFormat("yyyy-MM-dd")
     private Date dob; 
@@ -113,4 +114,8 @@ public class Customer {
 
     public String getMotherName() { return motherName; }
     public void setMotherName(String motherName) { this.motherName = motherName; }
+
+    public String getPin() { return pin; }
+
+    public void setPin(String pin) { this.pin = pin; }
 }
