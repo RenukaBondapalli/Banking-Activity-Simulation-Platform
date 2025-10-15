@@ -54,6 +54,11 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ValidationException("Customer must be at least 18 years old");
         }
 
+        if (!ValidationUtil.isValidPin(customer.getPin())) {
+            throw new ValidationException("PIN must be exactly 4 numeric digits.");
+        }
+
+
     }
 
     @Override
