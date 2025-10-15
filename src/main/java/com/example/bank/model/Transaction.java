@@ -8,17 +8,16 @@ public class Transaction {
     private String utrNumber;
     private Timestamp transactionDate;
     private BigDecimal transactionAmount;
-    private Timestamp debitedDate;
     private int accountId;
     private BigDecimal balanceAmount;
     private String description;
-    private String modifiedBy;
     private String receiver;
     private String transactionType;
     private String modeOfTransaction;
     private String senderAccountNumber;
     private String receiverAccountNumber; 
     private String accountNumber;
+    private String pin;
 
    
     public Transaction() {}
@@ -49,9 +48,6 @@ public class Transaction {
     public BigDecimal getTransactionAmount() { return transactionAmount; }
     public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
 
-    public Timestamp getDebitedDate() { return debitedDate; }
-    public void setDebitedDate(Timestamp debitedDate) { this.debitedDate = debitedDate; }
-
     public int getAccountId() { return accountId; }
     public void setAccountId(int accountId) { this.accountId = accountId; }
 
@@ -60,9 +56,6 @@ public class Transaction {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-
-    public String getModifiedBy() { return modifiedBy; }
-    public void setModifiedBy(String modifiedBy) { this.modifiedBy = modifiedBy; }
 
     public String getReceiver() { return receiver; }
     public void setReceiver(String receiver) { this.receiver = receiver; }
@@ -95,6 +88,13 @@ public class Transaction {
 
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 
 }
